@@ -56,9 +56,15 @@ func start() {
 		nf.Stop()
 	}()
 
-	go func() {
-		for {
-			<-ticker.C
+	for {
+		select {
+		case <-sigch:
+			return
+
+		case <-timeout.C:
+			return
+
+		case <-ticker.C:
 			rank, err := nf.GetProcessRank(recentRankLimit, 3)
 			if err != nil {
 				log.Errorf("GetProcessRank failed, err: %s", err.Error())
@@ -67,16 +73,7 @@ func start() {
 
 			clear()
 			showTable(rank)
-		}
-	}()
-
-	for {
-		select {
-		case <-sigch:
-			return
-
-		case <-timeout.C:
-			return
+			time.Sleep(5 * time.Second)
 		}
 	}
 }
@@ -119,8 +116,8 @@ func showTable(ps []*netflow.Process) {
 			cast.ToString(po.InodeCount),
 			humanBytes(po.TrafficStats.In),
 			humanBytes(po.TrafficStats.Out),
-			inRate + "/s",
-			outRate + "/s",
+			inRate,
+			outRate,
 		}
 
 		items = append(items, item)
