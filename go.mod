@@ -1,4 +1,4 @@
-module github.com/rfyiamcool/go-netflow
+module github.com/wenzhongyi/go-netflow
 
 go 1.16
 
